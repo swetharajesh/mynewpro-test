@@ -1,4 +1,9 @@
 pipeline {
+    environment {
+    registary= "docker_hub_account/bellaryrajesh / testone
+    registaryCredential = 'bellaryrajesh'
+    }
+    
     agent any
     stages {
         stage('Git Clone') {
@@ -7,6 +12,10 @@ pipeline {
             }
         }
     }
+    stage('Building image') {
+      steps{
+        script {
+          docker.build registry + ":$BUILD_NUMBER"
     post { 
         always { 
             echo 'I will always say Hello again!'
