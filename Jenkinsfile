@@ -1,7 +1,7 @@
 pipeline {
   environment {
     registry = "bellaryrajesh/testone"
-    registryCredential = ‘bellaryrajesh’
+    registryCredential = 'dockerhub'
   }
   agent any
   stages {
