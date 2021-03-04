@@ -1,6 +1,6 @@
 pipeline {
     environment {
-    registary= "docker_hub_account/bellaryrajesh / testone
+    registary = "docker_hub_account/bellaryrajesh / testone
     registaryCredential = 'bellaryrajesh'
     }
     
