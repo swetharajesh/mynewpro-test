@@ -1,20 +1,21 @@
 pipeline {
-    environment {
-    registary = "docker_hub_account/bellaryrajesh/testone"
-    registaryCredential = 'bellaryrajesh'
-    }
-    
-    agent any
-    stages {
-        stage('Git Clone') {
-            steps {
-                git branch: 'main', credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git'
-            }
-        }
+  environment {
+    registry = "bellaryrajesh/testone"
+    registryCredential = ‘bellaryrajesh’
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git branch: 'main', credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git'
+      }
     }
     stage('Building image') {
       steps{
-                  docker.build registry + ":$BUILD_NUMBER"
-   }
-   }
-  } 
+        script {
+          docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+  }
+}
