@@ -26,6 +26,7 @@ pipeline {
                 host: 'tcp://localhost:2375',
                 targetRepo: 'local-repo', // where to copy to (from docker-virtual)
                                 properties: 'project-name=docker1;status=stable'
+              )
           }
         }
       }
