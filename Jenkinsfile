@@ -18,11 +18,14 @@ pipeline {
      }
       }
     }
-    stage('Deploy Image') {
-      steps{
-        script {
-          docker.withRegistry( 'bellaryrajesh/testone', dockerhub ) {
-            dockerImage.push()
+    stage ('Push image to Artifactory') { // take that image and push to artifactory
+        steps {
+            rtDockerPush(
+                serverId: "jFrog-ar1",
+                image: "168.62.183.49:8081/docker-vir/hello-world:latest",
+                host: 'tcp://localhost:2375',
+                targetRepo: 'local-repo', // where to copy to (from docker-virtual)
+                                properties: 'project-name=docker1;status=stable'
           }
         }
       }
