@@ -23,7 +23,7 @@ pipeline {
             rtDockerPush(
                 serverId: "jFrog-ar1",
                 image: "https://skumartestdemo.jfrog.io/docker-virtual/hello-world:latest",
-                host: 'https://skumartestdemo.jfrog.io/',
+                host: unix:///var/run/docker.sock,
                 targetRepo: 'local-repo', // where to copy to (from docker-virtual)
                                 properties: 'project-name=docker1;status=stable'
               )
