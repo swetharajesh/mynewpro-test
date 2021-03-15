@@ -28,12 +28,6 @@ pipeline {
                                 properties: 'project-name=docker1;status=stable'
               )
           }
-        }
-    }
-    stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
-      }
-    }
+        }   
 }
-
+}
