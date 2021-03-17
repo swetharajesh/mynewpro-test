@@ -18,16 +18,18 @@ pipeline {
      }
       }
     }
-    stage ('Push image to Artifactory') { // take that image and push to artifactory
-        steps {
-            rtDockerPush(
-                serverId: "jFrog-ar1",
-                image: "https://skumartestdemo.jfrog.io/docker-virtual/hello-world:latest",
-                host: 'unix:///var/run/docker.sock',
-                targetRepo: 'docker-local', // where to copy to (from docker-virtual)
-                                properties: 'project-name=docker1;status=stable'
-              )
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push("$BUILD_NUMBER")
+             dockerImage.push('latest')
           }
-        }   
+          }
+        } 
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $imagename:$BUILD_NUMBER"
+         sh "docker rmi $imagename:latest"  
 }
 }
