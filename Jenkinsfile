@@ -33,3 +33,6 @@ pipeline {
          sh "docker rmi $imagename:latest"  
 }
 }
+    }
+  }
+}
