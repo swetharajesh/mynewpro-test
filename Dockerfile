@@ -1,3 +1,3 @@
 FROM centos:latest
-RUN YUM UPDATE
+RUN yum update -y 
 CMD echo this is the testFile
