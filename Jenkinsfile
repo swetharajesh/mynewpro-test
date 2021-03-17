@@ -1,40 +1,46 @@
 pipeline {
-  environment {
-    registry = "docker/testone"  
-    registryCredential = 'dockerhub' 
-    dockerImage = ''
-  }
-  agent any
-  stages {
-    stage('Cloning Git') {
-      steps {
-        git branch: 'main', credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git' 
-      }
+    agent any 
+    environment {
+                registry = "docker/testone"
+                registryCredential = 'dockerhub'
+        dockerImage = ''
     }
-    stage('Build Docker image') { 
-        steps {
-            echo 'Starting to build docker image'
-
-            script {
-                dockerImage = docker.build.registry + ":$BUILD_NUMBER"
-
+    
+    stages {
+        stage('Cloning Git') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git']]])       
             }
         }
+    
+    // Building Docker images
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build registry
+        }
+      }
     }
-    stage('Deploy our image') { 
-            steps { 
-                script { 
-                    docker.withRegistry( '', registryCredential ) { 
-                        dockerImage.push()
-						 }
-                } 
+    
+     // Uploading Docker images into Docker Hub
+    stage('Upload Image') {
+     steps{    
+         script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
             }
-        } 
-        stage('Cleaning up') { 
-            steps { 
-                sh "docker rmi $registry:$BUILD_NUMBER" 
-            }
-        } 
+        }
+      }
     }
+    
+     // Stopping Docker containers for cleaner Docker run
+     stage('docker stop container') {
+         steps {
+            sh 'docker ps -f name=mypythonappContainer -q | xargs --no-run-if-empty docker container stop'
+            sh 'docker container ls -a -fname=mypythonappContainer -q | xargs -r docker container rm'
+         }
+       }
+    
+    
+     }
 }
-
