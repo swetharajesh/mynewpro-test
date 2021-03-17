@@ -11,13 +11,12 @@ pipeline {
         git branch: 'main', credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git' 
       }
     }
-    stage('Build image') { // build and tag docker image
+    stage('Build Docker image') { 
         steps {
             echo 'Starting to build docker image'
 
             script {
-                def dockerfile = 'Dockerfile'
-                def customImage = docker.build('*.*.*.*:8081/docker-virtual/hello-world:latest', "-f ${dockerfile} .")
+                dockerImage = docker.build.registry
 
             }
         }
