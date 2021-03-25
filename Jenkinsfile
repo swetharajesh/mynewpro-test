@@ -35,3 +35,15 @@ pipeline {
     
      }
 }
+ stage ('Push image to Artifactory') { // take that image and push to artifactory
+        steps {
+            rtDockerPush(
+                serverId: "jFrog-ar1",
+                image: "skumartestdemo.jfrog.io/artifactory/docker-local/hello-world:latest",
+                host: 'tcp://localhost:2375',
+                targetRepo: 'local-repo', // where to copy to (from docker-virtual)
+                // Attach custom properties to the published artifacts:
+                properties: 'project-name=docker1;status=stable'
+            )
+        }
+    }
