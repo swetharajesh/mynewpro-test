@@ -41,6 +41,10 @@ pipeline {
           ]) {
             final TLOCK_RESPONSE = readJSON text: sh(returnStdout: true, script: 'curl -k -H "Content-Type: application/json" -X POST -d "{\\"username\\":\\"${TLOCK_USER}\\",\\"password\\":\\"${TLOCK_PASSWORD}\\"}" "${TLOCK_URL}/api/v1/authenticate"').trim()
             final String TLOCK_TKN = TLOCK_RESPONSE.token
+	  }
+	}
+	    }
+    }
 			stage('Download TwistCli'){
 				steps {
 						script {
@@ -55,4 +59,11 @@ pipeline {
       }
     }
  }
+			}
+  }
+		}
+	}
+  }
+  }
+}
 
