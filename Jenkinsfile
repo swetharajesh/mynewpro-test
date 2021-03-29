@@ -1,7 +1,7 @@
 #!/usr/bin/groovy
 
 pipeline {
-  agent { label 'LINUX' }
+  agent any 
   //For maintaing logs and timeout
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
