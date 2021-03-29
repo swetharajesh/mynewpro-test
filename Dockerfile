@@ -9,7 +9,7 @@ ARG USERNAME
 ARG PASSWORD
 ARG TLOCK_URL
 
-RUN yum update -y ; yum add --no-cache --update \
+RUN yum update -y ; yum install dnf -y \
   jq \
   docker \
   iptables
