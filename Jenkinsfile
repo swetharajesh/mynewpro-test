@@ -1,49 +1,58 @@
 pipeline {
-    agent any 
-    environment {
-                registry = "bellaryrajesh/testone"
-                registryCredential = 'dockerhub'
-        dockerImage = ''
-    }
-    
-    stages {
-        stage('Cloning Git') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'mycred', url: 'https://github.com/swetharajesh/mynewpro-test.git']]])       
-            }
-        }
-    
-    // Building Docker images
-    stage('Building image') {
-      steps{
+  agent any
+  stages {
+  stage ('setup parameter') {
+	steps {
+		script{
+				parameters {
+    string(name: 'IMAGE_ID', defaultValue: '')
+    string(name: 'TLOCK_URL', defaultValue: 'https://containersectest.northamerica.cerner.net:8083')
+  }
+
+  stages {
+    stage('Set User') {
+           steps {
         script {
-          dockerImage = docker.build registry
+          wrap([$class: 'BuildUser']) {
+            env.user_id = env.BUILD_USER_ID == null ? '' : env.BUILD_USER_ID
+          }
         }
       }
     }
-    
-     // Uploading Docker images into Docker Hub
-    stage('Upload Image') {
-     steps{    
-         script {
-            docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
-            }
+    stage('Download Image to Scan'){
+           steps {
+        script {
+          if (params.IMAGE_ID == '' || user_id == null || user_id == ''){
+            echo 'Skipping Job because user is not logged in or no image id was provided.'
+            currentBuild.result = 'ABORTED'
+          }
+          docker.withRegistry('https://docker-production.cernerrepos.net') {
+            image_to_scan = docker.image(params.IMAGE_ID)
+            image_to_scan.pull()
+          }
         }
       }
-    }  
-    
-     }
-}
- stage ('Push image to Artifactory') { // take that image and push to artifactory
-        steps {
-            rtDockerPush(
-                serverId: "jFrog-ar1",
-                image: "skumartestdemo.jfrog.io/artifactory/docker-local/hello-world:latest",
-                host: 'tcp://localhost:2375',
-                targetRepo: 'local-repo', // where to copy to (from docker-virtual)
-                // Attach custom properties to the published artifacts:
-                properties: 'project-name=docker1;status=stable'
-            )
-        }
     }
+    stage('Download TwistCli'){
+            steps {
+        script {
+          withCredentials([
+            usernamePassword(credentialsId: 'svcEBIArtifactory')
+          ]) {
+            final TLOCK_RESPONSE = readJSON text: sh(returnStdout: true, script: 'curl -k -H "Content-Type: application/json" -X POST -d "{\\"username\\":\\"${TLOCK_USER}\\",\\"password\\":\\"${TLOCK_PASSWORD}\\"}" "${TLOCK_URL}/api/v1/authenticate"').trim()
+            final String TLOCK_TKN = TLOCK_RESPONSE.token
+			stage('Download TwistCli'){
+				steps {
+						script {
+            sh "set +x; curl -k -L -H 'Authorization: Bearer ${TLOCK_URL}' -o twistcli '${TLOCK_URL}/api/v1/util/twistcli'"
+            sh "set +x; chmod a+x ./twistcli"
+			stage('Run TwistCLI'){
+            steps {
+        script {
+            sh "set +x; ./twistcli images scan --address ${TLOCK_URL} --token ${TLOCK_TKN} --details --publish docker-production.cernerrepos.net/${IMAGE_ID}"
+          }
+        }
+      }
+    }
+ }
+--
