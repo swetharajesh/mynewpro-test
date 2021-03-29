@@ -9,7 +9,7 @@ ARG USERNAME
 ARG PASSWORD
 ARG TLOCK_URL
 
-RUN apk update; apk add --no-cache --update \
+RUN yum update; yum add --no-cache --update \
   jq \
   docker \
   iptables
