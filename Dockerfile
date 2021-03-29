@@ -1,4 +1,4 @@
-FROM  docker.cernerrepos.net/centos:ruby-24-centos7 as centos
+FROM  centos
 LABEL com.cerner.name='TLOCK CLI Scanner'
 LABEL com.cerner.repo-url='https://github.com/ss088271/TwistCLI_CICD'
 
